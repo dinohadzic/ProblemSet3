@@ -30,12 +30,10 @@ Beta <- matrix(c(1,2,0,4,0), ncol=1)
 #combination of the X's plus some normally distributed error. (HINT: rnorm). The output
 #should be a 20 by 1000 array.
 
-#The function Y.fun below creates Y values for a linear model, each of which is a linear
-#combination of the X's and some normally distributed error.
-
 Y.fun <- function(X, Beta){
   Y = (X %*% Beta) + rnorm(length(X %*% Beta))
 }
+
 
 Y.res <- aaply(.data=my.array, .margins=3, .fun=Y.fun, Beta=Beta) #Including third dimension.
 Y.res2 <- t(Y.res) #Transposes Y values. Y.res2 now has appropriate dimensions.
