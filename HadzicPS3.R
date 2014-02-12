@@ -52,6 +52,18 @@ coefficients <- laply(.data=1:1000, .fun=regression.1000, Y.res2, my.array) #app
 #Create a density plot for each of the 6 coefficients (each of which should have been estimated 1,000)
 #times.) What does this distribution represent?
 
+par(mfrow=c(2,3))  #Sets the graph display to 3 by 2, so we may view all graphs in one window.
 
+plot.fun <- function(a,b,c,d,e,f){                    #plot.fun takes six inputs, and produces density plots for each.
+  plot(density(a), main="Alpha", xlab="Coefficient Value") 
+  plot(density(b), main="Beta 1", xlab="Coefficient Value")
+  plot(density(c), main="Beta 2", xlab="Coefficient Value")
+  plot(density(d), main="Beta 3", xlab="Coefficient Value")
+  plot(density(e), main="Beta 4", xlab="Coefficient Value")
+  plot(density(f), main="Beta 5", xlab="Coefficient Value")
+}
+
+plot.fun(coefficients[,1], coefficients[,2], coefficients[,3], coefficients[,4], coefficients[,5],
+         coefficients[,6])                          #Plots the density of the six coefficients.
 
 
