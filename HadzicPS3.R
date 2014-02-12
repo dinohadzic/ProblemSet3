@@ -89,7 +89,20 @@ sig.t.fun <- function(X){
 sig.ts <- apply(t.statistics, 2, sig.t.fun) #Applying function over t.statistics and storing results
 #as sig.ts, which provides the number of significant t-statistics for all variables involved.
 
-
 #Question 7
 #Re-run the code in parallel. Using the system.time command, estimate how much time is saved (or not) 
 #using the parallel code.
+
+system.time(coefficients <- laply(.data=1:1000, .fun=regression.1000, Y.res2, my.array)) #Re-running some
+#code from Question 3, not in parallel.  Although the measures vary somewhat between different runs,
+#user typically registers at between 1.020 and 1.050, system is always very low, and elapsed is also
+#between 1.020 and 1.050 usually.
+
+registerDoMC(cores=4) #Enables parallel run over 4 cores.
+
+system.time(coefficients <- laply(.data=1:1000, .fun=regression.1000, Y.res2, my.array, .parallel=TRUE))
+#Interestingly, when run in parallel, the same code registers considerably higher measures for user and
+#system, but a consistenly lower one for elapsed.  User varies greatly, as does system to a lesser extent.
+#Elapsed generally regsters at approximately 0.8, which is noticeably lower than it was when the code
+#was not run in parallel.
+
