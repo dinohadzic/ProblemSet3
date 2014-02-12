@@ -76,3 +76,20 @@ t.fun <- function(i, Y, X){                       #t.fun extracts t-statistics f
 
 t.statistics <- laply(1:1000, t.fun, Y.res2, my.array)  #Applying the function over the data and storing
 #extracted t-statistics as object "t.statistics."
+
+#Question 6
+#For the 1,000 regressions, calculate how many t.statistics are statistically "significant" (p <= .05)
+#for each variable. (Make sure you use the right degrees of freedom). Discuss.
+
+sig.t.fun <- function(X){                  
+  length(which(X >= qt(0.975, 14) | X <= -qt(0.975, 14)))
+}  #sig.t.fun calculates the number of statistically significant t-statistics for each variable
+#using the apprpriate significance level (0.05) and the correct number of  degrees of freedom (14).
+
+sig.ts <- apply(t.statistics, 2, sig.t.fun) #Applying function over t.statistics and storing results
+#as sig.ts, which provides the number of significant t-statistics for all variables involved.
+
+
+#Question 7
+#Re-run the code in parallel. Using the system.time command, estimate how much time is saved (or not) 
+#using the parallel code.
