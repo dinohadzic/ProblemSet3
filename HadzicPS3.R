@@ -67,3 +67,12 @@ plot.fun(coefficients[,1], coefficients[,2], coefficients[,3], coefficients[,4],
          coefficients[,6])                          #Plots the density of the six coefficients.
 
 
+#Question 5
+#Alter your code so that you now collect t-statistics for all 1,000 regressions for all six coefficients.
+
+t.fun <- function(i, Y, X){                       #t.fun extracts t-statistics from the summary table.
+  coefficients(summary(lm(Y[,i] ~ X[,,i])))[,3]
+}
+
+t.statistics <- laply(1:1000, t.fun, Y.res2, my.array)  #Applying the function over the data and storing
+#extracted t-statistics as object "t.statistics."
