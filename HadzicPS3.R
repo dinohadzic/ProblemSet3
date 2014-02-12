@@ -106,3 +106,50 @@ system.time(coefficients <- laply(.data=1:1000, .fun=regression.1000, Y.res2, my
 #Elapsed generally regsters at approximately 0.8, which is noticeably lower than it was when the code
 #was not run in parallel.
 
+
+#Part 2: Calculating Fit Statistics
+
+#Question 1
+#Using the Out of step dataset, randomly subset the data into two partitions. Use one partition 
+#(your "training set") to build at least three statistical mdoels where incumbent vote share is 
+#the dependent variable.
+#Using these models, make "predictions" for the partition of the data you did NOT use to fit the
+#model.  This is your "test" set.
+
+incumbents <- read.table("http://pages.wustl.edu/montgomery/incumbents.txt", header = T) #Imports the 
+#incumbents.txt dataset directly from website and stores it as object incumbents.
+
+nrow(incumbents) #Incumbents has 6687 rows. 
+
+sample.rows <- sample(1:6687, 3344) #Samples randomly 3344 of the rows in the incumbents dataset.
+
+training.set <- incumbents[sample.rows,] #Creates "training set" which contains the randomly sampled rows
+#from the incumbents data.  This new dataset has 3344 rows.
+
+test.set <- incumbents[-sample.rows,] #Creates "test set" which contains the remaining rows.  This dataset
+#has 3343 rows.
+
+mod1 <- lm(voteshare ~ incspend + chalspend, data = training.set) #mod1 is the first model with the incumbents
+#voteshare as the response variable, incumbent and challenger spending as explanatory variables.
+
+pred.1 <- predict(mod1, newdata = test.set) #pred.1 stores the predicted incumbent voteshares using mod1 and
+#the test.set data.
+
+mod2 <- lm(voteshare ~ inparty + presvote + unemployed, data = training.set) #mod2 is the second model with the
+#incumbent's voteshare as the response variable.  The explanatory variables include whether the incumbent and 
+#the presidents are of the same party (inparty), the voteshare of the presidential candidate from the incumbent's 
+#party in the previous two elections in the district (presvote), and the number of people unemployed at the district
+#level (logged).
+
+pred.2 <- predict(mod2, newdata = test.set) #pred.2 stores the predicted incumbent voteshares using mod2 and 
+#the test.set data.
+
+mod3 <- lm(voteshare ~ chalquality + seniority + midterm, data = training.set) #mod3 is the third model with the
+#incumbent's voteshare as the response variable.  The explanatory variables include whether the challenger has 
+#previously won an elected position (chalquality), the number of terms the incumbents has served in congress (seniority),
+#and whether the election is a midterm election (midterm).
+
+pred.3 <- predict(mod3, newdata = test.set) #pred.3 stores the predicted incumbent voteshares using mod3 and the
+#test.set data.
+
+
