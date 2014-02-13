@@ -191,3 +191,110 @@ fit.fun <- function(y, P, r){
 
 fit.fun(y, P, r) #Produces the ouput from arguments y, P, and r.
 
+
+#Question 3
+#Write tests (and alter your code) to ensure that: 
+#The user can choose which fit statistics are calculated
+#The funciton still works if the baseline model is not provided (just drop the MRAE)
+
+#fit.fun2 is similar to function in the previous section.  If y, P, r, and statistic (set to "ALL") is provided,
+#then the function produce the same ouput is fit.fun from the previous part.  If r is not provided, then
+#the ouput will include all relevant test statistics except MRAE.  For invidiual statistics, the function
+#ouput the appropriate statistic regardless of whether or not r is provided.  Finally, if the user
+#requests MRAE specifically, the function's ouput will include MRAE as long as r is provided.  If r is not 
+#provided in this case, the ouput wil read "Please include baseline (r) so that MRAE may be provided."
+
+fit.fun2 <- function(y, P, r=NULL, statistic){
+  ei <- apply(P, 2, function(x){abs(x - y)})
+  ai <- apply(ei, 2, function(x){(x / abs(y)) * 100})
+  bi <- abs(r - y)
+  RMSE <- apply(ei, 2, function(x){sqrt(sum(x) / length(x))})
+  MAD <- apply(ei, 2, function(x){median(x)})
+  RMSLE <- apply(P, 2, function(x){sqrt(sum((log (x + 1) - log(y + 1))^2) / length(x))})
+  MAPE <- apply(ai, 2, function(x){(sum(x)/(length(x)))})
+  MEAPE <- apply(ai, 2, function(x){median(x)})
+  MRAE <- apply(ei, 2, function(x, w){median(x/w, na.rm=TRUE)}, w = bi)
+  if(is.null(r)){
+    if(statistic == "ALL"){
+      return(matrix(c(RMSE, MAD, RMSLE, MAPE, MEAPE), nrow=3, 
+                    dimnames=list(c("Model 1", "Model 2", "Model 3"), c("RMSE", "MAD", "RMSLE", "MAPE", "MEAPE"))))
+    }
+  }
+  if(!is.null(r)){
+    if(statistic == "ALL"){
+      return(matrix(c(RMSE, MAD, RMSLE, MAPE, MEAPE, MRAE), nrow=3, 
+                    dimnames=list(c("Model 1", "Model 2", "Model 3"), c("RMSE", "MAD", "RMSLE", "MAPE", "MEAPE", "MRAE"))))  
+    }
+  }
+  if(is.null(r) | !is.null(r)){
+    if(statistic == "RMSE"){
+      return(matrix(c(RMSE), nrow=3, 
+                    dimnames=list(c("Model 1", "Model 2", "Model 3"), c("RMSE"))))     
+    }
+  }
+  if(is.null(r) | !is.null(r)){
+    if(statistic == "RMSE"){
+      return(matrix(c(RMSE), nrow=3, 
+                    dimnames=list(c("Model 1", "Model 2", "Model 3"), c("RMSE"))))     
+    }
+  }
+  if(is.null(r) | !is.null(r)){
+    if(statistic == "MAD"){
+      return(matrix(c(MAD), nrow=3, 
+                    dimnames=list(c("Model 1", "Model 2", "Model 3"), c("MAD"))))     
+    }
+  }
+  if(is.null(r) | !is.null(r)){
+    if(statistic == "RMSLE"){
+      return(matrix(c(RMSLE), nrow=3, 
+                    dimnames=list(c("Model 1", "Model 2", "Model 3"), c("RMSLE"))))     
+    }
+  }
+  if(is.null(r) | !is.null(r)){
+    if(statistic == "MAPE"){
+      return(matrix(c(MAPE), nrow=3, 
+                    dimnames=list(c("Model 1", "Model 2", "Model 3"), c("MAPE"))))     
+    }
+  }
+  if(is.null(r) | !is.null(r)){
+    if(statistic == "MEAPE"){
+      return(matrix(c(MEAPE), nrow=3, 
+                    dimnames=list(c("Model 1", "Model 2", "Model 3"), c("MEAPE"))))     
+    }
+  }
+  if(!is.null(r)){
+    if(statistic == "MRAE"){
+      return(matrix(c(MRAE), nrow=3, 
+                    dimnames=list(c("Model 1", "Model 2", "Model 3"), c("MRAE"))))     
+    }
+  }
+  if(is.null(r)){
+    if(statistic == "MRAE"){
+      cat("Please include baseline (r) so that MRAE may be provided.")     
+    }
+  }
+}
+
+fit.fun2(y, P, statistic="ALL")
+fit.fun2(y, P, r, statistic="ALL")
+
+fit.fun2(y, P, statistic="RMSE")
+fit.fun2(y, P, r, statistic="RMSE")
+
+fit.fun2(y, P, statistic="MAD")
+fit.fun2(y, P, r, statistic="MAD")
+
+fit.fun2(y, P, statistic="RMSLE")
+fit.fun2(y, P, r, statistic="RMSLE")
+
+fit.fun2(y, P, statistic="MAPE")
+fit.fun2(y, P, r, statistic="MAPE")
+
+fit.fun2(y, P, statistic="MEAPE")
+fit.fun2(y, P, r, statistic="MEAPE")
+
+fit.fun2(y, P, statistic="MRAE")
+fit.fun2(y, P, r, statistic="MRAE")
+
+#As the above runs of fit.fun2 demonstrate, the function is working properly.
+
