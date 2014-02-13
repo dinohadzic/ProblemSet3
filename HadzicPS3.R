@@ -119,15 +119,23 @@ system.time(coefficients <- laply(.data=1:1000, .fun=regression.1000, Y.res2, my
 incumbents <- read.table("http://pages.wustl.edu/montgomery/incumbents.txt", header = T) #Imports the 
 #incumbents.txt dataset directly from website and stores it as object incumbents.
 
-nrow(incumbents) #Incumbents has 6687 rows. 
+indexing <- which(complete.cases(incumbents[,c("voteshare", "incspend", "chalspend", "inparty", "presvote",
+                                               "unemployed", "chalquality", "seniority", "midterm")]))
+#The above code deletes those rows form the data that have missing values for variables I will be building
+#models for in this exercise.
 
-sample.rows <- sample(1:6687, 3344) #Samples randomly 3344 of the rows in the incumbents dataset.
+incumbents2 <- incumbents[indexing,] #Creates new dataset called incumbents2 that includes only cases where
+#no missing data exists for the variables of interest.
 
-training.set <- incumbents[sample.rows,] #Creates "training set" which contains the randomly sampled rows
-#from the incumbents data.  This new dataset has 3344 rows.
+dim(incumbents2) #incumbents2 has 3193 cases, from which we will randomly sample.
 
-test.set <- incumbents[-sample.rows,] #Creates "test set" which contains the remaining rows.  This dataset
-#has 3343 rows.
+sample.rows <- sample(1:3193, 1597) #Samples randomly 1597 of the rows in the incumbents2 dataset.
+
+training.set <- incumbents2[sample.rows,] #Creates "training set" which contains the randomly sampled rows
+#from the incumbents2 data.  This new dataset has 1597 rows.
+
+test.set <- incumbents2[-sample.rows,] #Creates "test set" which contains the remaining rows.  This dataset
+#has 1596 rows.
 
 mod1 <- lm(voteshare ~ incspend + chalspend, data = training.set) #mod1 is the first model with the incumbents
 #voteshare as the response variable, incumbent and challenger spending as explanatory variables.
@@ -152,4 +160,34 @@ mod3 <- lm(voteshare ~ chalquality + seniority + midterm, data = training.set) #
 pred.3 <- predict(mod3, newdata = test.set) #pred.3 stores the predicted incumbent voteshares using mod3 and the
 #test.set data.
 
+#Question 2
+#Write a function that takes as arguments (1) a vector of "true" observed outcomes (y), (2) a matrix of
+#predictions (P), and a vector of naive forecasts (r).  The matrix should be organized so that each 
+#column represents a single forecasting model and the rows correspond with each observation predicted.
+#The function should ouput a matrix where each column corresponds with one of the above fit statistics,
+#and each row corresponds to a model.
+
+y <- test.set$voteshare #Creates the vector of "true" observed outcomes that will be used as one argument.
+P <- cbind(pred.1, pred.2, pred.3) #Creates the P matrix of predictions.
+r <- c(NA, test.set$voteshare[-nrow(test.set)]) #Creates the vector of naive forecasts, r.
+
+#The fit.fun function calculates e_i, a_i, and b_i first and then proceeds to calculate the relevant statistics,
+#including RMSE, MAD, RMSLE, MAPE, MEAPE, and MRAE.  Finally, the function then stores the output as a matrix,
+#with the rows indicating the model and the columns the relevant statistics.
+
+fit.fun <- function(y, P, r){
+  ei <- apply(P, 2, function(x){abs(x - y)})
+  ai <- apply(ei, 2, function(x){(x / abs(y)) * 100})
+  bi <- abs(r - y)
+  RMSE <- apply(ei, 2, function(x){sqrt(sum(x) / length(x))})
+  MAD <- apply(ei, 2, function(x){median(x)})
+  RMSLE <- apply(P, 2, function(x){sqrt(sum((log (x + 1) - log(y + 1))^2) / length(x))})
+  MAPE <- apply(ai, 2, function(x){(sum(x)/(length(x)))})
+  MEAPE <- apply(ai, 2, function(x){median(x)})
+  MRAE <- apply(ei, 2, function(x, w){median(x/w, na.rm=TRUE)}, w = bi)
+  return(matrix(c(RMSE, MAD, RMSLE, MAPE, MEAPE, MRAE), nrow=3, 
+                dimnames=list(c("Model 1", "Model 2", "Model 3"), c("RMSE", "MAD", "RMSLE", "MAPE", "MEAPE", "MRAE"))))
+}
+
+fit.fun(y, P, r) #Produces the ouput from arguments y, P, and r.
 
