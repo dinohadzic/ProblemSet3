@@ -21,6 +21,7 @@ library(foreach)
 
 my.array <- array(rnorm(20*5*1000), dim=c(20,5,1000)) #Creates the array and fills it with random data.
 
+
 #Question 2
 #Here is the vector of covariates
 
@@ -37,6 +38,7 @@ Y.fun <- function(X, Beta){                     #The Y.fun function generates ap
 Y.res <- aaply(.data = my.array, .margins = 3, .fun=Y.fun, Beta=Beta) #Applies Y.fun over the third dimension.
 Y.res2 <- t(Y.res) #Transposes Y values. Y.res2 now has appropriate dimensions.
 
+
 #Question 3
 #Run 1,000 regressions across all of this simulated data. Have as the output a 1000 by 6
 #matrix of estimated regression coefficients.
@@ -47,6 +49,7 @@ regression.1000 <- function(i, Y, X){   #regression.1000 runs the necessary regr
 
 coefficients <- laply(.data=1:1000, .fun=regression.1000, Y.res2, my.array) #applies regression.1000 and stores the 
 #coefficients as a 1000 by 6 matrix.
+
 
 #Question 4
 #Create a density plot for each of the 6 coefficients (each of which should have been estimated 1,000)
@@ -66,6 +69,11 @@ plot.fun <- function(a,b,c,d,e,f){                    #plot.fun takes six inputs
 plot.fun(coefficients[,1], coefficients[,2], coefficients[,3], coefficients[,4], coefficients[,5],
          coefficients[,6])                          #Plots the density of the six coefficients.
 
+par(mfrow=c(1,1)) #Returns the graph display to 1 by 1.
+
+#These distributions represent the sampling distribuitons of our parameter estimates, with alpha
+#representing the intercept.
+
 
 #Question 5
 #Alter your code so that you now collect t-statistics for all 1,000 regressions for all six coefficients.
@@ -77,6 +85,7 @@ t.fun <- function(i, Y, X){                       #t.fun extracts t-statistics f
 t.statistics <- laply(1:1000, t.fun, Y.res2, my.array)  #Applying the function over the data and storing
 #extracted t-statistics as object "t.statistics."
 
+
 #Question 6
 #For the 1,000 regressions, calculate how many t.statistics are statistically "significant" (p <= .05)
 #for each variable. (Make sure you use the right degrees of freedom). Discuss.
@@ -86,8 +95,14 @@ sig.t.fun <- function(X){
 }  #sig.t.fun calculates the number of statistically significant t-statistics for each variable
 #using the apprpriate significance level (0.05) and the correct number of  degrees of freedom (14).
 
-sig.ts <- apply(t.statistics, 2, sig.t.fun) #Applying function over t.statistics and storing results
+sig.ts <- apply(t.statistics, MARGIN=2, FUN=sig.t.fun) #Applying function over t.statistics and storing results
 #as sig.ts, which provides the number of significant t-statistics for all variables involved.
+
+#Considering that our vector of covariates is (1,2,0,4,0), we should expect a high number of statistically
+#significant t-statistics for beta 1, 2, and 4.  This is indeed the case (899, 999, 1000).  We also have 
+#a considerably lower number of significant t-statistics for beta 3 and 4 (58 and 46), which is again, as
+#expected.
+
 
 #Question 7
 #Re-run the code in parallel. Using the system.time command, estimate how much time is saved (or not) 
@@ -104,7 +119,8 @@ system.time(coefficients <- laply(.data=1:1000, .fun=regression.1000, Y.res2, my
 #Interestingly, when run in parallel, the same code registers considerably higher measures for user and
 #system, but a consistenly lower one for elapsed.  User varies greatly, as does system to a lesser extent.
 #Elapsed generally regsters at approximately 0.8, which is noticeably lower than it was when the code
-#was not run in parallel.
+#was not run in parallel.  Using elapsed as the measure of interest, running code in parallel does appear
+#to save a fair amount of time.
 
 
 #Part 2: Calculating Fit Statistics
@@ -117,7 +133,7 @@ system.time(coefficients <- laply(.data=1:1000, .fun=regression.1000, Y.res2, my
 #model.  This is your "test" set.
 
 incumbents <- read.table("http://pages.wustl.edu/montgomery/incumbents.txt", header = T) #Imports the 
-#incumbents.txt dataset directly from website and stores it as object incumbents.
+#incumbents.txt dataset directly from website and stores it as object "incumbents."
 
 indexing <- which(complete.cases(incumbents[,c("voteshare", "incspend", "chalspend", "inparty", "presvote",
                                                "unemployed", "chalquality", "seniority", "midterm")]))
@@ -160,6 +176,7 @@ mod3 <- lm(voteshare ~ chalquality + seniority + midterm, data = training.set) #
 pred.3 <- predict(mod3, newdata = test.set) #pred.3 stores the predicted incumbent voteshares using mod3 and the
 #test.set data.
 
+
 #Question 2
 #Write a function that takes as arguments (1) a vector of "true" observed outcomes (y), (2) a matrix of
 #predictions (P), and a vector of naive forecasts (r).  The matrix should be organized so that each 
@@ -200,7 +217,7 @@ fit.fun(y, P, r) #Produces the ouput from arguments y, P, and r.
 #fit.fun2 is similar to function in the previous section.  If y, P, r, and statistic (set to "ALL") is provided,
 #then the function produce the same ouput is fit.fun from the previous part.  If r is not provided, then
 #the ouput will include all relevant test statistics except MRAE.  For invidiual statistics, the function
-#ouput the appropriate statistic regardless of whether or not r is provided.  Finally, if the user
+#ouputs the appropriate statistic regardless of whether or not r is provided.  Finally, if the user
 #requests MRAE specifically, the function's ouput will include MRAE as long as r is provided.  If r is not 
 #provided in this case, the ouput wil read "Please include baseline (r) so that MRAE may be provided."
 
@@ -297,6 +314,7 @@ fit.fun2(y, P, statistic="MRAE")
 fit.fun2(y, P, r, statistic="MRAE")
 
 #As the above runs of fit.fun2 demonstrate, the function is working properly.
+
 
 #Question 4
 #Evaluate the accuracy of the models you fit above using the test set.
