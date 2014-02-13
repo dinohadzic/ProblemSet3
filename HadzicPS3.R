@@ -298,3 +298,14 @@ fit.fun2(y, P, r, statistic="MRAE")
 
 #As the above runs of fit.fun2 demonstrate, the function is working properly.
 
+#Question 4
+#Evaluate the accuracy of the models you fit above using the test set.
+
+fit.fun(y, P, r)
+
+#With respect to every test statistic, Model 1 performs better than both Model 2 and Model 3.  Additionally,
+#Model 2 performs better than Model 3, but only slightly so.  Since Model 1 uses campaign spending by
+#both the challenger and the incumbent as explanatory variables, this suggest that such spending is more
+#important in determining incumbent voteshare than a host of other variables, including quite a few 
+#demographic ones.  
+
